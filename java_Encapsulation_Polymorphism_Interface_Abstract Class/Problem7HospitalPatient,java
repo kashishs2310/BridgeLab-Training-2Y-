@@ -1,0 +1,88 @@
+import java.util.*;
+
+abstract class Patient {
+    private String patientId;
+    private String name;
+    private int age;
+
+    public Patient(String patientId, String name, int age) {
+        this.patientId = patientId;
+        this.name = name;
+        this.age = age;
+    }
+
+    public String getPatientId(){ return patientId; }
+    public String getName(){ return name; }
+    public int getAge(){ return age; }
+
+    public String getPatientDetails() {
+        return String.format("ID:%s, Name:%s, Age:%d", patientId, name, age);
+    }
+
+    public abstract double calculateBill(); // rupees
+}
+
+interface MedicalRecord {
+    void addRecord(String r);
+    List<String> viewRecords();
+}
+
+class InPatient extends Patient implements MedicalRecord {
+    private int daysAdmitted;
+    private List<String> records = new ArrayList<>();
+
+    public InPatient(String id, String name, int age, int days) {
+        super(id, name, age);
+        this.daysAdmitted = days;
+    }
+
+    @Override
+    public double calculateBill() {
+        double dailyRoom = 2000;
+        double treatment = 5000; // placeholder
+        return daysAdmitted * dailyRoom + treatment;
+    }
+
+    @Override
+    public void addRecord(String r) { records.add(r); }
+
+    @Override
+    public List<String> viewRecords() { return Collections.unmodifiableList(records); }
+}
+
+class OutPatient extends Patient implements MedicalRecord {
+    private List<String> records = new ArrayList<>();
+
+    public OutPatient(String id, String name, int age) { super(id, name, age); }
+
+    @Override
+    public double calculateBill() {
+        double consultation = 500;
+        double tests = 0;
+        return consultation + tests;
+    }
+
+    @Override
+    public void addRecord(String r) { records.add(r); }
+
+    @Override
+    public List<String> viewRecords() { return Collections.unmodifiableList(records); }
+}
+
+public class Problem7HospitalPatient {
+    public static void main(String[] args) {
+        InPatient ip = new InPatient("IP001","Eve",30,5);
+        ip.addRecord("Appendectomy performed");
+        OutPatient op = new OutPatient("OP001","Frank",45);
+        op.addRecord("Routine checkup");
+
+        List<Patient> patients = Arrays.asList(ip, op);
+        for (Patient p : patients) {
+            System.out.println(p.getPatientDetails() + ", Bill: " + p.calculateBill());
+            if (p instanceof MedicalRecord) {
+                System.out.println(" Records: " + ((MedicalRecord)p).viewRecords());
+            }
+            System.out.println();
+        }
+    }
+}
